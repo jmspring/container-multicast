@@ -9,7 +9,6 @@ n2n:
     pullPolicy: Always
   supernode:
     port: 1200
-    serviceEnvPrefix: ZEROMQ_MCAST_N2N_SUPERNODE_SVC
   edge:
     nodeCount: 3
     networkName: n2nnet
@@ -24,3 +23,6 @@ zeromq:
     repository: jmspring/zeromq
     tag: latest
     pullPolicy: Always
+
+statefulset:
+  antiAffinity: hard

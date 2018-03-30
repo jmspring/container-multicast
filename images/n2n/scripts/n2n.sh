@@ -29,6 +29,7 @@ elif [ "$MODE" == "edge" ]; then
 
     # get node index
     EDGE_NODE_IDX=`hostname | awk -F"-" '{print $NF}'`
+    let "EDGE_NODE_IDX+=1"
 
     # setup MAC address and IP address for edge instance
     MACADDR_NODE=`printf '%02X' "$EDGE_NODE_IDX"`

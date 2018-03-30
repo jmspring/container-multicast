@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "zeromq-mcast.name" . }}-n2n-supernode-svc
+  name: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode-svc
   labels:
-    app: {{ template "zeromq-mcast.name" . }}
+    app: {{ template "zeromq-mcast.fullname" . }}
     chart: {{ template "zeromq-mcast.chart" . }}
     release: {{ .Release.Name }}
-    run: {{ template "zeromq-mcast.name" . }}-n2n-supernode-svc
+    run: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode-svc
 spec:
   ports:
   - port: {{ .Values.n2n.supernode.port }}
     protocol: UDP
   selector:
-    n2n-role: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+    n2n-role: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode

@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+  name: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode
   labels:
-    n2n-role: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+    n2n-role: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode
 spec:
   containers:
-  - name: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+  - name: {{ template "zeromq-mcast.fullname" . }}-n2n-supernode
     image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
     imagePullPolicy: Always
     command: 

@@ -3,20 +3,39 @@ kind: StatefulSet
 metadata:
   name: {{ template "zeromq-mcast.fullname" . }}
   labels:
-    app: {{ template "zeromq-mcast.name" . }}
+    app: {{ template "zeromq-mcast.fullname" . }}
     chart: {{ template "zeromq-mcast.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
     "helm.sh/created": {{.Release.Time.Seconds | quote }}
 spec:
-  serviceName: {{ template "zeromq-mcast.fullname" . }}-n2n-edge
+  serviceName: {{ template "zeromq-mcast.fullname" . }}-node
   replicas: {{ .Values.n2n.edge.nodeCount }}
   template:
     metadata:
       labels:
-        app: "{{ template "zeromq-mcast.fullname" . }}"
+        app: {{ template "zeromq-mcast.fullname" . }}
     spec:
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.statefulset.antiAffinity "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app:  {{ template "zeromq-mcast.fullname" . }}
+                release: {{ .Release.Name | quote }}
+        {{- else if eq .Values.statefulset.antiAffinity "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 5
+            podAffinityTerm:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app:  {{ template "zeromq-mcast.fullname" . }}
+                  release: {{ .Release.Name | quote }}
+        {{- end }}
       containers:
       - name: {{ template "zeromq-mcast.name" . }}-n2n-edge
         image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
@@ -35,7 +54,7 @@ spec:
         - name: FOREGROUND
           value: "{{ .Values.n2n.mode.runInForground }}"
         - name: SUPERNODE_SERVICE_NAME
-          value: "{{ .Values.n2n.supernode.serviceEnvPrefix }}"
+          value: {{ printf "%s%s" ((include "zeromq-mcast.fullname" . | replace "-" "_")) "_N2N_SUPERNODE_SVC" | upper | quote }}
         - name: ENCRYPTION_KEY
           value: "{{ .Values.n2n.edge.encryptionKey }}"
         - name: NETWORK_NAME
@@ -44,6 +63,15 @@ spec:
           value: "{{ .Values.n2n.edge.ipAddressBase }}"
         - name: MACADDR_BASE
           value: "{{ .Values.n2n.edge.macAddressBase }}"
+      - name: {{ template "zeromq-mcast.name" . }}-zeromq-node
+        image: "{{ .Values.zeromq.image.repository }}:{{ .Values.zeromq.image.tag }}"
+        imagePullPolicy: Always
+        command:
+          - bash
+          - "-x"
+          - "-c"
+          - |
+            /bin/sleep 10000
       initContainers:
       - name: {{ template "zeromq-mcast.name" . }}-n2n-await-supernode
         image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
@@ -51,4 +79,4 @@ spec:
         command: ['sh', '-x', '-c', '/usr/local/n2n/wait_for_supernode.sh']
         env:
         - name: SUPERNODE_SERVICE_NAME
-          value: "{{ .Values.n2n.supernode.serviceEnvPrefix }}"
+          value: {{ printf "%s%s" ((include "zeromq-mcast.fullname" . | replace "-" "_")) "_N2N_SUPERNODE_SVC" | upper | quote }}
