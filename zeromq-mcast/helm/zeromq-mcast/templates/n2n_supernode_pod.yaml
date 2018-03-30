@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+  labels:
+    n2n-role: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+spec:
+  containers:
+  - name: {{ template "zeromq-mcast.name" . }}-n2n-supernode
+    image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
+    imagePullPolicy: Always
+    command: 
+      - bash
+      - "-c"
+      - |
+        /usr/local/n2n/n2n.sh
+    env:
+    - name: MODE
+      value: "supernode"
+    - name: FOREGROUND
+      value: "{{ .Values.n2n.mode.runInForground }}"
+    - name: SUPERNODE_PORT
+      value: "{{ .Values.n2n.supernode.port }}"
+    ports:
+    - containerPort: {{ .Values.n2n.supernode.port }}
+      protocol: UDP

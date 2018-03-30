@@ -1,0 +1,54 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "zeromq-mcast.fullname" . }}
+  labels:
+    app: {{ template "zeromq-mcast.name" . }}
+    chart: {{ template "zeromq-mcast.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/created": {{.Release.Time.Seconds | quote }}
+spec:
+  serviceName: {{ template "zeromq-mcast.fullname" . }}-n2n-edge
+  replicas: {{ .Values.n2n.edge.nodeCount }}
+  template:
+    metadata:
+      labels:
+        app: "{{ template "zeromq-mcast.fullname" . }}"
+    spec:
+      containers:
+      - name: {{ template "zeromq-mcast.name" . }}-n2n-edge
+        image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
+        imagePullPolicy: Always
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        command:
+          - bash
+          - "-c"
+          - |
+            /usr/local/n2n/n2n.sh
+        env:
+        - name: MODE
+          value: "edge"
+        - name: FOREGROUND
+          value: "{{ .Values.n2n.mode.runInForground }}"
+        - name: SUPERNODE_SERVICE_NAME
+          value: "{{ .Values.n2n.supernode.serviceEnvPrefix }}"
+        - name: ENCRYPTION_KEY
+          value: "{{ .Values.n2n.edge.encryptionKey }}"
+        - name: NETWORK_NAME
+          value: "{{ .Values.n2n.edge.networkName }}"
+        - name: IPADDR_BASE
+          value: "{{ .Values.n2n.edge.ipAddressBase }}"
+        - name: MACADDR_BASE
+          value: "{{ .Values.n2n.edge.macAddressBase }}"
+      initContainers:
+      - name: {{ template "zeromq-mcast.name" . }}-n2n-await-supernode
+        image: "{{ .Values.n2n.image.repository }}:{{ .Values.n2n.image.tag }}"
+        imagePullPolicy: Always
+        command: ['sh', '-x', '-c', '/usr/local/n2n/wait_for_supernode.sh']
+        env:
+        - name: SUPERNODE_SERVICE_NAME
+          value: "{{ .Values.n2n.supernode.serviceEnvPrefix }}"

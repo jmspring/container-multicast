@@ -1,0 +1,26 @@
+# Default values for zeromq-mcast.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+n2n:
+  image:
+    repository: jmspring/n2n-base
+    tag: latest
+    pullPolicy: Always
+  supernode:
+    port: 1200
+    serviceEnvPrefix: ZEROMQ_MCAST_N2N_SUPERNODE_SVC
+  edge:
+    nodeCount: 3
+    networkName: n2nnet
+    encryptionKey: thisismykey
+    ipAddressBase: 10.211.55
+    macAddressBase: 6D:A0:12:34:56
+  mode:
+    runInForground: 1
+
+zeromq:
+  image:
+    repository: jmspring/zeromq
+    tag: latest
+    pullPolicy: Always

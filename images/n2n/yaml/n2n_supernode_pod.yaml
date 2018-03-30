@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: n2n-supernode
+  labels:
+    n2n-role: n2n-supernode
+spec:
+  containers:
+  - name: n2n-supernode-container
+    image: jmspring/n2n-base:latest
+    imagePullPolicy: Always
+    command: ["/usr/local/n2n/n2n.sh"]
+    env:
+    - name: MODE
+      value: "supernode"
+    - name: SUPERNODE_PORT
+      value: "1200"
+    ports:
+    - containerPort: 1200
+      protocol: UDP

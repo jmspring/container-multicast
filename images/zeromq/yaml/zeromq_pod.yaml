@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zeromq
+  labels:
+    n2n-role: n2n-edge
+spec:
+  containers:
+  - name: n2n-edge-container
+    image: jmspring/n2n-base:latest
+    imagePullPolicy: Always
+    securityContext:
+      capabilities:
+        add: ["NET_ADMIN"]
+    command: ["/usr/local/n2n/n2n.sh"]
+    env:
+    - name: MODE
+      value: "edge"
+    - name: SUPERNODE_SERVICE_NAME
+      value: "N2N_SUPERNODE_SVC"
+    - name: ENCRYPTION_KEY
+      value: "thisisatestkey"
+    - name: NETWORK_NAME
+      value: "mynetwork"
+    - name: IPADDR_BASE
+      value: "10.42.1"
+    - name: MACADDR_BASE
+      value: "3C:A0:12:34:56"
+    - name: EDGE_NODE_IDX
+      value: "2"
