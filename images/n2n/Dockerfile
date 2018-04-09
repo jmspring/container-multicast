@@ -9,11 +9,15 @@ RUN apk update \
     && mkdir -p /tmp/code/src/github.com \
     && cd /tmp/code/src/github.com \
     && git clone https://github.com/meyerd/n2n.git \
+    && git clone https://github.com/troglobit/mtools.git \
     && cd n2n/n2n_v2 \
     && mkdir build \
     && cd build \
     && cmake .. \
     && make install \
+    && cd /tmp/code/src/github.com/mtools \
+    && make \
+    && cp mreceive msend /usr/local/sbin/ \
     && rm -rf /tmp/code \
     && apk del cmake git linux-headers openssl-dev build-base \
     && rm -rf /var/cache/apk/* \

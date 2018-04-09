@@ -7,6 +7,13 @@ if [ ! -z "$FOREGROUND" ]; then
     fi
 fi
 
+VERBOSE_FLAG=""
+if [ ! -z "$N2N_DEBUG" ]; then
+    if [ "$N2N_DEBUG" == "1" ]; then
+        VERBOSE_FLAG="-v"
+    fi
+fi
+
 if [ "$MODE" == "supernode" ]; then
     [ -z "$SUPERNODE_PORT" ] && { echo "Need to set SUPERNODE_PORT"; exit 1; }
 
@@ -32,7 +39,7 @@ elif [ "$MODE" == "edge" ]; then
     let "EDGE_NODE_IDX+=1"
 
     # setup MAC address and IP address for edge instance
-    MACADDR_NODE=`printf '%02X' "$EDGE_NODE_IDX"`
+    MACADDR_NODE=`printf '%02x' "$EDGE_NODE_IDX"`
     MACADDR="$MACADDR_BASE:$MACADDR_NODE"
     IPADDR_NODE=$EDGE_NODE_IDX
     IPADDR="$IPADDR_BASE.$IPADDR_NODE"
@@ -45,7 +52,7 @@ elif [ "$MODE" == "edge" ]; then
     tunctl -t tun0
 
     # launch the edge process
-    N2N_KEY="$ENCRYPTION_KEY" /usr/local/sbin/edge -v $FOREGROUND_FLAG -d n2n0 -c "$NETWORK_NAME" -m "$MACADDR" -a "$IPADDR" -l "$SUPERNODE_IP:$SUPERNODE_PORT"
+    /usr/local/sbin/edge -E -r $VERBOSE_FLAG $FOREGROUND_FLAG -k "$ENCRYPTION_KEY" -d n2n0 -c "$NETWORK_NAME" -m "$MACADDR" -a "$IPADDR" -l "$SUPERNODE_IP:$SUPERNODE_PORT" 
 else
     echo "MODE set incorrectly.  Should be 'edge' or 'supernode'"
     exit 1

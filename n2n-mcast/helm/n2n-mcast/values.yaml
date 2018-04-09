@@ -13,16 +13,11 @@ n2n:
     nodeCount: 3
     networkName: n2nnet
     encryptionKey: thisismykey
-    ipAddressBase: 10.211.55
-    macAddressBase: 6D:A0:12:34:56
+    ipAddressBase: 192.168.49
+    macAddressBase: aa:bb:cc:dd:ee
   mode:
     runInForground: 1
-
-zeromq:
-  image:
-    repository: jmspring/zeromq
-    tag: latest
-    pullPolicy: Always
+    debugMode: 1
 
 statefulset:
   antiAffinity: hard
